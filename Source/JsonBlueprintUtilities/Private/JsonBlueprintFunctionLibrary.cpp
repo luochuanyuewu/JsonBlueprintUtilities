@@ -61,8 +61,12 @@ bool UJsonBlueprintFunctionLibrary::ToFile(const FJsonObjectWrapper& JsonObject,
 		FFrame::KismetExecutionMessage(*FString::Printf(TEXT("FileName cannot be empty")), ELogVerbosity::Error);
 		return false;
 	}
-
+#if ENGINE_MAJOR_VERSION > 4
 	if (FString JsonString; ToString(JsonObject, JsonString))
+#else
+	FString JsonString;
+	if (ToString(JsonObject, JsonString))
+#endif
 	{
 		const bool& bResult = FFileHelper::SaveStringToFile(JsonString, *File.FilePath);
 		if (!bResult)
