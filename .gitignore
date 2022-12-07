@@ -1,0 +1,13 @@
+.svn
+*.dll
+Binaries
+Intermediate
+HoudiniEngine
+/LogicDriver
+/LogicDriverPlugins
+/GFurPro
+/PowerIK
+/LoadingScreen
+/ProInstanceToolsPlugin
+/BlockoutToolsPlugin
+/LDAssistant
