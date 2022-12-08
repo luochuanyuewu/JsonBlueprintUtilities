@@ -4,8 +4,11 @@ using UnrealBuildTool;
 
 public class JsonBlueprintUtilities : ModuleRules
 {
+	//是否支持蓝图结构体?
+	private bool bWithBpSupport = true; 
 	public JsonBlueprintUtilities(ReadOnlyTargetRules Target) : base(Target)
 	{
+		
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 
 		PublicDependencyModuleNames.AddRange(
@@ -19,5 +22,15 @@ public class JsonBlueprintUtilities : ModuleRules
 			new string[] {
 				"Json",
 			});
+
+		if (bWithBpSupport)
+		{
+			PublicDefinitions.Add("WITH_BPSUPPORT=1");
+		}
+		else
+		{
+			PublicDefinitions.Add("WITH_BPSUPPORT=0");
+		}
+
 	}
 }

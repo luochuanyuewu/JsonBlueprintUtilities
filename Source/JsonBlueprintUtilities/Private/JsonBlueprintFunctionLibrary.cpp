@@ -2,7 +2,11 @@
 
 #include "JsonBlueprintFunctionLibrary.h"
 
+#if WITH_BPSUPPORT
+#include "MyJsonObjectConverter.h"
+#else
 #include "JsonObjectConverter.h"
+#endif
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
 
@@ -112,7 +116,11 @@ DEFINE_FUNCTION(UJsonBlueprintFunctionLibrary::execGetField)
 		}
 		
 		P_NATIVE_BEGIN
+#if WITH_BPSUPPORT
+		bResult = FMyJsonObjectConverter::JsonObjectToUStruct(JsonObject.JsonObject.ToSharedRef(), StructProperty->Struct, ValuePtr);
+#else
 		bResult = FJsonObjectConverter::JsonObjectToUStruct(JsonObject.JsonObject.ToSharedRef(), StructProperty->Struct, ValuePtr);
+#endif
 		P_NATIVE_END
 		*StaticCast<bool*>(RESULT_PARAM) = bResult;
 		return;
@@ -157,7 +165,11 @@ DEFINE_FUNCTION(UJsonBlueprintFunctionLibrary::execSetField)
 		}
 
 		P_NATIVE_BEGIN
+#if WITH_BPSUPPORT
+		bResult = FMyJsonObjectConverter::UStructToJsonObject(StructProperty->Struct, SourceValuePtr, JsonObject.JsonObject.ToSharedRef());
+#else
 		bResult = FJsonObjectConverter::UStructToJsonObject(StructProperty->Struct, SourceValuePtr, JsonObject.JsonObject.ToSharedRef());
+#endif
 		P_NATIVE_END
 	}
 	else
@@ -211,7 +223,11 @@ DEFINE_FUNCTION(UJsonBlueprintFunctionLibrary::execStructToJsonString)
 	}
 	
 	P_NATIVE_BEGIN
+#if WITH_BPSUPPORT
+	bResult = FMyJsonObjectConverter::UStructToJsonObjectString(StructProperty->Struct, ValuePtr, OutJsonString);
+#else
 	bResult = FJsonObjectConverter::UStructToJsonObjectString(StructProperty->Struct, ValuePtr, OutJsonString);
+#endif
 	P_NATIVE_END
 
 	*StaticCast<bool*>(RESULT_PARAM) = bResult;
@@ -249,8 +265,12 @@ bool UJsonBlueprintFunctionLibrary::JsonFieldToProperty(
 		FFrame::KismetExecutionMessage(*FString::Printf(TEXT("Field '%s' was not found on the provided JSON object."), *FieldName), ELogVerbosity::Warning);
 		return false;
 	}
-	
+
+#if WITH_BPSUPPORT
+	return FMyJsonObjectConverter::JsonValueToUProperty(JsonValue, TargetProperty, TargetValuePtr);
+#else
 	return FJsonObjectConverter::JsonValueToUProperty(JsonValue, TargetProperty, TargetValuePtr);
+#endif
 }
 
 bool UJsonBlueprintFunctionLibrary::PropertyToJsonField(
@@ -265,8 +285,11 @@ bool UJsonBlueprintFunctionLibrary::PropertyToJsonField(
 	{
 		TargetObject.JsonObject = MakeShared<FJsonObject>();
 	}
-
+#if WITH_BPSUPPORT
+	TargetObject.JsonObject->SetField(FieldName, FMyJsonObjectConverter::UPropertyToJsonValue(SourceProperty, SourceValuePtr));
+#else
 	TargetObject.JsonObject->SetField(FieldName, FJsonObjectConverter::UPropertyToJsonValue(SourceProperty, SourceValuePtr));
+#endif
 	return true;
 }
 
